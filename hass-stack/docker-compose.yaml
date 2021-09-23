@@ -1,0 +1,134 @@
+  version: '3'
+  services:
+    homeassistant:
+      container_name: homeassistant
+      image: homeassistant/raspberrypi4-homeassistant:stable
+      volumes:
+      - /etc/localtime:/etc/localtime:ro
+      #- /config/hass:/config
+      - /config/hass:/config
+      restart: unless-stopped
+      network_mode: host
+      # user: 1000:100
+      #depends_on:
+      #- deconz
+      #devices:
+      ##- /dev/zwave:/dev/zwave
+
+    deconz:
+      container_name: deconz 
+      image: marthoc/deconz
+      volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /config/deconz:/root/.local/share/dresden-elektronik/deCONZ
+      devices:
+        #    - /dev/ttyAMA0
+        - /dev/ttyUSB.CON:/dev/ttyUSB0
+      restart: unless-stopped
+      network_mode: host
+      environment:
+        DECONZ_UPNP: 0
+
+#    influxdb:
+#      container_name: influxdb
+#      image: influxdb:latest
+#      restart: unless-stopped
+#      network_mode: host
+#      volumes:
+#      - /etc/localtime:/etc/localtime:ro
+#      - /config/influxdb:/var/lib/influxdb
+
+#    ozwd:
+#      image: openzwave/ozwdaemon:allinone-latest
+#      container_name: "ozwd"
+#      devices:
+#        - "/dev/zwave"
+#      volumes:
+#      - /config/ozw:/opt/ozw/config
+#      network_mode: host
+#      environment:
+#        MQTT_SERVER: "home"
+#        USB_PATH: "/dev/zwave"
+#        OZW_NETWORK_KEY: "0xD2, 0x65, 0x6B, 0x30, 0xC5, 0x60, 0x20, 0x44, 0x1B, 0x29, 0xD8, 0xEC, 0x0D, 0x92, 0x3D, 0x9F"
+#      restart: unless-stopped
+#
+    mqtt:
+      container_name: mqtt 
+      image: panuwitp/mosquitto-arm
+      ports:
+      - 1883:1883
+      volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /config/mosquitto:/mosquitto
+      #- /config/mosquitto:/mosquitto/config/mosquitto.conf:ro
+      #- /config/mosquitto/log:/mosquitto/log
+      #- /config/mosquitto/data:/mosquitto/data
+      restart: unless-stopped
+
+    glances:
+      container_name: glances
+      image: blackdark93/glances:dev
+      #image: docker.io/nicolargo/glances
+      network_mode: host
+      environment:
+        GLANCES_OPT: "-w"
+      pid: "host"
+      volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    ruby-rest980:
+      container_name: ruby-rest980
+      image: koalazak/rest980
+      ports:
+        - "3000:3000"
+      environment:
+        - BLID=E98323F451D747209479AC56E47D304B
+        - PASSWORD=:1:1606611757:UTnGZJr1ZOI1QvAP
+        - ROBOT_IP=192.168.1.112
+        - FIRMWARE_VERSION=2
+      restart: unless-stopped
+      network_mode: host
+    ruby-php-nginx:
+      container_name: ruby-php-nginx
+      image: webhippie/php-nginx:latest
+      environment:
+        NGINX_WEBROOT: "/app"
+      volumes:
+        - /config/hass/vacuum/ruby:/app
+      ports:
+        - "3010:8080"
+      restart: unless-stopped
+    robby-rest980:
+      container_name: robby-rest980
+      image: koalazak/rest980
+      ports:
+        - "3001:3000"
+      environment:
+        - BLID=63062DF282EA46EFA76569482C77BFA7
+        - PASSWORD=:1:1607104158:Bahaq2gz6pHP86P7
+        - ROBOT_IP=192.168.1.215
+        - FIRMWARE_VERSION=2
+      restart: unless-stopped
+      network_mode: host
+    robby-php-nginx:
+      container_name: robby-php-nginx
+      image: webhippie/php-nginx:latest
+      environment:
+        NGINX_WEBROOT: "/app"
+      volumes:
+        - /config/hass/vacuum/robby:/app
+      ports:
+        - "3011:8080"
+      restart: unless-stopped
+    zwavejs: 
+      image: zwavejs/zwavejs2mqtt:latest
+      container_name: "zwavejs"
+      devices:
+        - "/dev/zwave"
+      volumes:
+        - /config/zwavejs:/usr/src/app/store
+      network_mode: host
+      restart: unless-stopped
+      ports:
+        - "8091:8091"
+        - "3000:3000"
