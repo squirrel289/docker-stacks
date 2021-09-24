@@ -1,0 +1,42 @@
+version: '2'
+services:
+  unms:
+    container_name: unms
+    image:  nico640/docker-unms:latest
+    restart: unless-stopped
+    #user: '911:911'
+    ports:
+      - 80:80
+      - 443:443
+      - 2055:2055/udp
+    volumes:
+      - /config/unms:/config
+      - /etc/localtime:/etc/localtime:ro
+  collector:
+    image: brontide/edge2influx
+    environment:
+      INFLUX_DB: edgeos
+      INFLUX_HOST: nas-02.calan.lan
+      #      INFLUX_USERNAME: argyle-gw-01
+      #      INFLUX_PASSWORD: testtest
+      ROUTER_PASSWORD: Fuscus!17
+      ROUTER_URL: https://argyle-gw-01.calan.co
+      ROUTER_USERNAME: chris
+      ROUTER_SSL: "True"
+  influxdb:
+    container_name: influxdb
+    #    image: quay.io/influxdb/influxdb:v2.0.3
+    image: influxdb
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /config/influxdb2:/var/lib/influxdb2
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /config/grafana:/var/lib/grafana

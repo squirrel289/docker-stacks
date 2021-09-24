@@ -1,0 +1,34 @@
+version: "3"
+services:
+  ispy:
+    container_name: ispy
+    image: doitandbedone/ispyagentdvr:latest
+    restart: unless-stopped
+    ports:
+      - 3478:3478/udp
+      - 50000:50000/udp
+      - 50001:50001/udp
+      - 50002:50002/udp
+      - 50003:50003/udp
+      - 50004:50004/udp
+      - 50005:50005/udp
+      - 50006:50006/udp
+      - 50007:50007/udp
+      - 50008:50008/udp
+      - 50009:50009/udp
+      - 50010:50010/udp
+      - 8090:8090/tcp
+    volumes:
+      - /config/ispy/config:/agent/Media/XML/
+      - /mnt/working:/agent/Media/WebServerRoot/Media/
+      - /config/ispy/commands:/agent/Commands
+  nvr-deepstack:
+    container_name: nvr-deepstack
+    environment:
+      - VISION-DETECTION=True
+    image: deepquestai/deepstack:gpu
+    runtime: nvidia
+    ports:
+      - 8000:5000/tcp
+    volumes:
+      - /config/nvr-deepstack:/datastore
