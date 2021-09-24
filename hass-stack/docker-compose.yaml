@@ -9,49 +9,7 @@
       - /config/hass:/config
       restart: unless-stopped
       network_mode: host
-      # user: 1000:100
-      #depends_on:
-      #- deconz
-      #devices:
-      ##- /dev/zwave:/dev/zwave
 
-    deconz:
-      container_name: deconz 
-      image: marthoc/deconz
-      volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /config/deconz:/root/.local/share/dresden-elektronik/deCONZ
-      devices:
-        #    - /dev/ttyAMA0
-        - /dev/ttyUSB.CON:/dev/ttyUSB0
-      restart: unless-stopped
-      network_mode: host
-      environment:
-        DECONZ_UPNP: 0
-
-#    influxdb:
-#      container_name: influxdb
-#      image: influxdb:latest
-#      restart: unless-stopped
-#      network_mode: host
-#      volumes:
-#      - /etc/localtime:/etc/localtime:ro
-#      - /config/influxdb:/var/lib/influxdb
-
-#    ozwd:
-#      image: openzwave/ozwdaemon:allinone-latest
-#      container_name: "ozwd"
-#      devices:
-#        - "/dev/zwave"
-#      volumes:
-#      - /config/ozw:/opt/ozw/config
-#      network_mode: host
-#      environment:
-#        MQTT_SERVER: "home"
-#        USB_PATH: "/dev/zwave"
-#        OZW_NETWORK_KEY: "0xD2, 0x65, 0x6B, 0x30, 0xC5, 0x60, 0x20, 0x44, 0x1B, 0x29, 0xD8, 0xEC, 0x0D, 0x92, 0x3D, 0x9F"
-#      restart: unless-stopped
-#
     mqtt:
       container_name: mqtt 
       image: panuwitp/mosquitto-arm
@@ -60,15 +18,11 @@
       volumes:
       - /etc/localtime:/etc/localtime:ro
       - /config/mosquitto:/mosquitto
-      #- /config/mosquitto:/mosquitto/config/mosquitto.conf:ro
-      #- /config/mosquitto/log:/mosquitto/log
-      #- /config/mosquitto/data:/mosquitto/data
       restart: unless-stopped
 
     glances:
       container_name: glances
       image: blackdark93/glances:dev
-      #image: docker.io/nicolargo/glances
       network_mode: host
       environment:
         GLANCES_OPT: "-w"
@@ -120,15 +74,3 @@
       ports:
         - "3011:8080"
       restart: unless-stopped
-    zwavejs: 
-      image: zwavejs/zwavejs2mqtt:latest
-      container_name: "zwavejs"
-      devices:
-        - "/dev/zwave"
-      volumes:
-        - /config/zwavejs:/usr/src/app/store
-      network_mode: host
-      restart: unless-stopped
-      ports:
-        - "8091:8091"
-        - "3000:3000"
