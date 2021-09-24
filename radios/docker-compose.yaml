@@ -1,0 +1,27 @@
+version: '3'
+services:
+    zwavejs: 
+      image: zwavejs/zwavejs2mqtt:latest
+      container_name: "zwavejs"
+      devices:
+        - "/dev/zwave"
+      volumes:
+        - /config/zwavejs:/usr/src/app/store
+      network_mode: host
+      restart: unless-stopped
+      ports:
+        - "8091:8091"
+        - "3000:3000"
+
+    deconz:
+      container_name: deconz 
+      image: marthoc/deconz
+      volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /config/deconz:/root/.local/share/dresden-elektronik/deCONZ
+      devices:
+        - /dev/ttyUSB.CON:/dev/ttyUSB0
+      restart: unless-stopped
+      network_mode: host
+      environment:
+        DECONZ_UPNP: 0
